@@ -160,6 +160,8 @@ namespace oops
         protected internal string _region; // Children OR same project (either)
         private protected string _secret;  // Children AND same project (both required)
 
+        public string Name { get => _name; set => _name = value; }
+
         private void ValidateSSN() { }     // Only Person
         protected void Log(string msg) { } // Person + children
         public string GetEmail() => Email; // Everyone
