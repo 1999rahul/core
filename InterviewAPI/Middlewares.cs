@@ -90,7 +90,7 @@ namespace ASPNETCONCEPTS
 
                     // Must be named InvokeAsync or Invoke
                     // Scoped services injected here, not constructor
-                    public async Task InvokeAsync(HttpContext context)
+                    public async Tasks InvokeAsync(HttpContext context)
                     {
                         _logger.LogInformation("Incoming request: {Method} {Path}",
                             context.Request.Method,
@@ -152,7 +152,7 @@ namespace ASPNETCONCEPTS
             // Sometimes you want to stop the pipeline entirely — for example in an IP blocklist middleware:
 
             /*
-            public async Task InvokeAsync(HttpContext context)
+            public async Tasks InvokeAsync(HttpContext context)
             {
                 var ip = context.Connection.RemoteIpAddress?.ToString();
 
@@ -178,7 +178,7 @@ namespace ASPNETCONCEPTS
             public class StronglyTypedMiddleware : IMiddleware
             {
                 // IMiddleware uses InvokeAsync with explicit signature
-                public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+                public async Tasks InvokeAsync(HttpContext context, RequestDelegate next)
                 {
                     // work here
                     await next(context);

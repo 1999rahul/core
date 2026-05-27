@@ -129,7 +129,7 @@
 
         // Part 5 — async void — the Danger Zone
         // async void methods are the most dangerous pattern — their exceptions cannot be caught by the caller:
-        // ❌ async void — exception crashes the app, can't be caught
+        // async void — exception crashes the app, can't be caught
         static async void DangerousMethod()
         {
             await Task.Delay(100);
@@ -147,5 +147,8 @@
         //}
         //// App crashes with unhandled exception
         ///The async method must return a Task or Task<T> to allow the caller to await it and catch exceptions. async void should only be used for event handlers where there's no caller to await, and even then, you should handle exceptions inside the method itself to prevent crashes.
+        /// 
+
+        
     }
 }

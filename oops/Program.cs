@@ -4,51 +4,27 @@
     {
         static void Main(string[] args)
         {
-            int[] asteroids = { 5, 10, -5 };
-            int [] res = AsteroidCollision(asteroids);
 
-            foreach (int i in res)
-            {
-                Console.WriteLine(i);
-            }
+            var program = new Program();
+
+            int a = 10;
+            program.AddTen(ref a);
+
+            int x;
+            int y;
+            program.GetValues(out x, out y);
 
         }
 
-
-        public static int[] AsteroidCollision(int[] asteroids)
+        void GetValues(out int min, out int max)
         {
-            var stack = new Stack<int>();
+            min = 10;   // MUST assign — out guarantees a value comes back
+            max = 100;
+        }
 
-            foreach (var asteroid in asteroids)
-            {
-                if (asteroid > 0)
-                {
-                    stack.Push(asteroid);
-                }
-                else
-                {
-                    bool shouldPush = true;
-                    while (true)
-                    {
-                        if (stack.Count > 0 && stack.Peek() > 0 && stack.First() < Math.Abs(asteroid))
-                        {
-                            stack.Pop();
-                        }
-                        else
-                        {
-                            shouldPush = false;
-                            break;
-                        }
-                    }
-
-                    if (shouldPush)
-                    {
-                        stack.Push(asteroid);
-                    }
-                }
-            }
-
-            return stack.Reverse().ToArray();
+        void AddTen(ref int number)
+        {
+            number = number + 10;  // modifies the ORIGINAL — not a copy
         }
     }
 }
