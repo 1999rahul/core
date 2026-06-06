@@ -5,7 +5,7 @@
  * ============================================================
  *
  * TABLE OF CONTENTS
- * -----------------
+ * ----------------------------------------------------------
  *  1.  Core Concept — who owns the value?
  *  2.  Controlled Component — basic example
  *  3.  Uncontrolled Component — basic example
