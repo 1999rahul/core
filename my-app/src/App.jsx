@@ -1,9 +1,8 @@
-import BackButtonDemo from './Routing/Questions/CustomBackButtonComponent/BackButtonDemo'
+import UserDemo from "./Routing/Questions/UserProfile/User";
 
 function App() {
-  return (
-      <BackButtonDemo />
-  )
+  return <UserDemo />
+
 }
 
 export default App
