@@ -699,9 +699,6 @@ readFilePromise("/home/user/file.txt")
 // ========================= EASY =============================
 // ============================================================
 
-
-
-
 // ------------------------------------------------------------
 // Q1. What is the output of this code? In what order?
 // ------------------------------------------------------------
@@ -869,8 +866,6 @@ async function readAsync() {
 readAsync();
 
 
-
-
 // ------------------------------------------------------------
 // Q6. What is the difference in behavior between
 //     Promise.all() and Promise.allSettled()?
@@ -919,6 +914,8 @@ Promise.resolve().then(() => {
   Promise.resolve().then(() => console.log("4")); // nested microtask
 });
 console.log("5");
+
+// 1 -> 5 -> 3 -> 4 -> 2
 
 // OUTPUT:
 // 1   ← sync
