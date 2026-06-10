@@ -684,3 +684,435 @@ readFilePromise("/home/user/file.txt")
 //  Sequential await         Adds latency if ops are independent — use Promise.all
 //  Promisification          Wrapping callback APIs in Promises
 //
+
+//------------------------------- QUESTIONS -------------------------------
+
+// ============================================================
+//     ASYNC JAVASCRIPT — CODE-BASED INTERVIEW QUESTIONS
+//     Easy → Medium → Hard
+// ============================================================
+
+
+
+
+// ============================================================
+// ========================= EASY =============================
+// ============================================================
+
+
+
+
+// ------------------------------------------------------------
+// Q1. What is the output of this code? In what order?
+// ------------------------------------------------------------
+
+console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");
+
+// OUTPUT:
+// A
+// D
+// C   ← microtask (Promise .then) runs before macrotask
+// B   ← macrotask (setTimeout) runs last
+
+
+
+
+// ------------------------------------------------------------
+// Q2. Fix the bug — why doesn't .catch() ever run here?
+// ------------------------------------------------------------
+
+function riskyOp() {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("network timeout")), 100);
+  });
+}
+
+// BUGGY VERSION
+async function buggy() {
+  try {
+    const result = riskyOp(); // BUG: missing await
+    console.log("result:", result); // prints Promise { <pending> } — not the value
+  } catch (err) {
+    console.log("caught:", err.message); // NEVER runs
+  }
+}
+
+// FIXED VERSION
+async function fixed() {
+  try {
+    const result = await riskyOp(); // await added — rejection is now caught
+    console.log("result:", result);
+  } catch (err) {
+    console.log("Q2 fixed - caught:", err.message); // "network timeout"
+  }
+}
+
+buggy();
+fixed();
+
+
+
+
+// ------------------------------------------------------------
+// Q3. What does this async function return?
+//     Can you call .then() on it?
+// ------------------------------------------------------------
+
+async function greet() {
+  return "hello";
+}
+
+async function fail() {
+  throw new Error("something went wrong");
+}
+
+console.log("Q3 - is Promise?", greet() instanceof Promise); // true
+
+greet().then((v) => console.log("Q3 - greet:", v));          // "hello"
+fail().catch((e) => console.log("Q3 - fail:", e.message));   // "something went wrong"
+
+// An async function ALWAYS returns a Promise.
+// return "hello"         → Promise.resolve("hello")
+// throw new Error(...)   → Promise.reject(new Error(...))
+
+
+
+
+// ============================================================
+// ======================= MEDIUM =============================
+// ============================================================
+
+
+
+
+// ------------------------------------------------------------
+// Q4. What is the performance problem? Fix it.
+// ------------------------------------------------------------
+
+function getUser(id) {
+  return new Promise((resolve) => setTimeout(() => resolve({ id, name: "Alice" }), 200));
+}
+function getProfile(id) {
+  return new Promise((resolve) => setTimeout(() => resolve({ bio: "Developer" }), 150));
+}
+function getSettings(id) {
+  return new Promise((resolve) => setTimeout(() => resolve({ theme: "dark" }), 180));
+}
+
+// SLOW — sequential: 200 + 150 + 180 = ~530ms
+async function loadSlow() {
+  const start = Date.now();
+  const user     = await getUser(1);
+  const profile  = await getProfile(1);
+  const settings = await getSettings(1);
+  console.log("Q4 sequential:", Date.now() - start, "ms"); // ~530ms
+}
+
+// FAST — parallel: max(200, 150, 180) = ~200ms
+async function loadFast() {
+  const start = Date.now();
+  const [user, profile, settings] = await Promise.all([
+    getUser(1),
+    getProfile(1),
+    getSettings(1),
+  ]);
+  console.log("Q4 parallel:", Date.now() - start, "ms"); // ~200ms
+}
+
+loadSlow();
+loadFast();
+
+// Rule: if operations don't depend on each other's results,
+// always use Promise.all() — never await them sequentially.
+
+
+
+
+// ------------------------------------------------------------
+// Q5. Promisify this callback-based function.
+// ------------------------------------------------------------
+
+// Original callback-based function (Node.js convention: cb(error, data))
+function readFileCb(path, callback) {
+  setTimeout(() => {
+    if (path && path.length > 0) {
+      callback(null, `contents of ${path}`);
+    } else {
+      callback(new Error("invalid path"), null);
+    }
+  }, 100);
+}
+
+// YOUR TASK: wrap readFileCb in a Promise so it can be used with await
+
+function readFilePromise(path) {
+  return new Promise((resolve, reject) => {
+    readFileCb(path, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
+
+// Usage
+readFilePromise("/home/user/notes.txt")
+  .then((data) => console.log("Q5 - file data:", data))
+  .catch((err) => console.log("Q5 - error:", err.message));
+
+async function readAsync() {
+  const data = await readFilePromise("/home/user/notes.txt");
+  console.log("Q5 async - data:", data);
+}
+readAsync();
+
+
+
+
+// ------------------------------------------------------------
+// Q6. What is the difference in behavior between
+//     Promise.all() and Promise.allSettled()?
+//     Demonstrate both with the same input.
+// ------------------------------------------------------------
+
+const p1 = Promise.resolve("first");
+const p2 = Promise.reject(new Error("second failed"));
+const p3 = Promise.resolve("third");
+
+// Promise.all — fail-fast: stops at first rejection
+Promise.all([p1, p2, p3])
+  .then((vals) => console.log("Q6 all - resolved:", vals))
+  .catch((err) => console.log("Q6 all - rejected fast:", err.message));
+  // "second failed" — p3 result is lost
+
+// Promise.allSettled — waits for all, never short-circuits
+Promise.allSettled([p1, p2, p3]).then((results) => {
+  results.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      console.log(`Q6 allSettled [${i}] fulfilled:`, r.value);
+    } else {
+      console.log(`Q6 allSettled [${i}] rejected:`, r.reason.message);
+    }
+  });
+});
+
+
+
+
+// ============================================================
+// ========================= HARD =============================
+// ============================================================
+
+
+
+
+// ------------------------------------------------------------
+// Q7. Predict the exact output — think carefully.
+// ------------------------------------------------------------
+
+console.log("1");
+setTimeout(() => console.log("2"), 0);
+Promise.resolve().then(() => {
+  console.log("3");
+  Promise.resolve().then(() => console.log("4")); // nested microtask
+});
+console.log("5");
+
+// OUTPUT:
+// 1   ← sync
+// 5   ← sync
+// 3   ← microtask (outer .then)
+// 4   ← nested microtask — queued DURING microtask drain, runs before macrotask
+// 2   ← macrotask (setTimeout)
+//
+// KEY: A microtask queued while draining microtasks still runs
+// in the SAME drain — before any macrotask gets a turn.
+
+
+
+
+// ------------------------------------------------------------
+// Q8. Implement a timeout wrapper.
+//     Reject the promise if it doesn't resolve within N ms.
+// ------------------------------------------------------------
+
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
+
+function slowOperation() {
+  return new Promise((resolve) => setTimeout(() => resolve("data ready"), 500));
+}
+
+// Resolves — timeout (1000ms) is longer than operation (500ms)
+withTimeout(slowOperation(), 1000)
+  .then((val) => console.log("Q8 - resolved:", val))
+  .catch((err) => console.log("Q8 - timed out:", err.message));
+
+// Rejects — timeout (200ms) is shorter than operation (500ms)
+withTimeout(slowOperation(), 200)
+  .then((val) => console.log("Q8 - resolved:", val))
+  .catch((err) => console.log("Q8 - timed out:", err.message)); // "Timed out after 200ms"
+
+
+
+
+// ------------------------------------------------------------
+// Q9. Implement a concurrency limiter.
+//     Run an array of async tasks with max N running at once.
+// ------------------------------------------------------------
+
+async function runWithConcurrency(tasks, limit) {
+  const results = [];
+  const executing = new Set();
+
+  for (const task of tasks) {
+    const promise = task().then((result) => {
+      executing.delete(promise);
+      return result;
+    });
+
+    executing.add(promise);
+    results.push(promise);
+
+    // Pool is full — wait for the fastest task to finish before adding more
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+
+  return Promise.all(results);
+}
+
+// Demo — 6 tasks, max 2 at a time
+function makeTask(id, ms) {
+  return () =>
+    new Promise((resolve) =>
+      setTimeout(() => {
+        console.log(`Q9 - task ${id} finished (${ms}ms)`);
+        resolve(`result-${id}`);
+      }, ms)
+    );
+}
+
+const tasks = [
+  makeTask(1, 300),
+  makeTask(2, 100),
+  makeTask(3, 200),
+  makeTask(4, 150),
+  makeTask(5, 250),
+  makeTask(6, 50),
+];
+
+runWithConcurrency(tasks, 2).then((results) => {
+  console.log("Q9 - all results:", results);
+});
+
+
+
+
+// ------------------------------------------------------------
+// Q10. Will this resolve or reject? What value does it settle with?
+// ------------------------------------------------------------
+
+const inner = Promise.reject(new Error("inner failed"));
+
+const outer = new Promise((resolve) => {
+  resolve(inner); // passing a rejected promise to resolve()
+});
+
+outer
+  .then((v) => console.log("Q10 - resolved:", v))
+  .catch((e) => console.log("Q10 - rejected:", e.message));
+
+// OUTPUT: "rejected: inner failed"
+//
+// Even though resolve() was called, passing a rejected promise
+// to resolve() triggers Promise assimilation — outer ADOPTS inner's state.
+// outer becomes rejected. .then() is skipped, .catch() fires.
+//
+// resolve() does NOT guarantee fulfillment when passed a thenable.
+
+
+
+
+// ------------------------------------------------------------
+// Q11. Implement retry logic.
+//      Retry a failing async operation up to N times before giving up.
+// ------------------------------------------------------------
+
+function unstableApi(callCount) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (callCount.value < 3) {
+        callCount.value++;
+        reject(new Error(`attempt ${callCount.value} failed`));
+      } else {
+        resolve("success on attempt 4");
+      }
+    }, 50);
+  });
+}
+
+async function retry(fn, maxAttempts) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await fn();
+      console.log(`Q11 - succeeded on attempt ${attempt}:`, result);
+      return result;
+    } catch (err) {
+      lastError = err;
+      console.log(`Q11 - attempt ${attempt} failed:`, err.message);
+    }
+  }
+  throw new Error(`Q11 - all ${maxAttempts} attempts failed. Last: ${lastError.message}`);
+}
+
+const callCount = { value: 0 };
+retry(() => unstableApi(callCount), 5).catch((err) => console.log("Q11 -", err.message));
+
+
+
+
+// ------------------------------------------------------------
+// Q12. Implement Promise.all() from scratch.
+// ------------------------------------------------------------
+
+function myPromiseAll(promises) {
+  return new Promise((resolve, reject) => {
+    if (promises.length === 0) return resolve([]);
+
+    const results = new Array(promises.length);
+    let resolved = 0;
+
+    promises.forEach((promise, index) => {
+      Promise.resolve(promise).then((value) => {
+        results[index] = value;
+        resolved++;
+        if (resolved === promises.length) {
+          resolve(results); // all done — resolve with full results array
+        }
+      }).catch(reject); // fail-fast — first rejection rejects the whole thing
+    });
+  });
+}
+
+// Test — all resolve
+myPromiseAll([
+  Promise.resolve(10),
+  Promise.resolve(20),
+  Promise.resolve(30),
+]).then((vals) => console.log("Q12 - all resolved:", vals)); // [10, 20, 30]
+
+// Test — one rejects
+myPromiseAll([
+  Promise.resolve("ok"),
+  Promise.reject(new Error("one failed")),
+  Promise.resolve("ok2"),
+]).catch((err) => console.log("Q12 - fail-fast:", err.message)); // "one failed"
