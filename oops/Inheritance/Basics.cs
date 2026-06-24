@@ -168,7 +168,8 @@
 
     // =========================================================================== Implementing multiple inheritance ===========================================================================
 
-    // C# does NOT support multiple inheritance of classes (a class cannot inherit from more than one class), but it supports multiple inheritance of interfaces (a class can implement multiple interfaces). This avoids the "diamond problem" where two parent classes have a method with the same signature, causing ambiguity for the child class.
+    // C# does NOT support multiple inheritance of classes (a class cannot inherit from more than one class), but it supports multiple inheritance of interfaces (a class can implement multiple interfaces).
+    // This avoids the "diamond problem" where two parent classes have a method with the same signature, causing ambiguity for the child class.
 
     // This is ILLEGAL in C#
     // public class HybridVehicle : Car, Boat { }
