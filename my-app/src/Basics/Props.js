@@ -231,10 +231,7 @@ function UserAvatar({ user }) {
 function App() {
   const [user, setUser] = useState({ name: "Rahul", avatar: "/pic.jpg" });
 
-  // Render UserAvatar here where user is available
-  const avatar = <UserAvatar user={user} />;
-
-  return <Dashboard sidebar={<Sidebar nav={<Navigation avatar={avatar} />} />} />;
+  return <Dashboard sidebar={<Sidebar nav={<Navigation avatar={<UserAvatar user={user} />} />} />} />;
 }
 
 // Dashboard now receives a ready-made sidebar element

@@ -149,11 +149,18 @@ const [profile, setProfile] = useState({
 // The expression would run on every render even though it is only used once.
 
 // WRONG — JSON.parse runs on every single render
+// Why Parse on every render?
+// -- Because javascript evaluates the expression passed to any function before the function is called, react does not geta chance to stop it, the evaluated result is then passes to
+// useState which then abondens the result and uses the value from the previous render, but the parse has already happened, wasting time and resources.
+// So overall react does not have any control over this, javascript has, and javascript evaluates the expression ahead of time and gives to react.
 const [data, setData] = useState(
   JSON.parse(localStorage.getItem("savedData") || "[]")
 );
 
 // CORRECT — pass a function, called only on first render
+// To overcome the above problem, we can pass an callback to the function, which react will call only once on the first render, 
+// and the result of that function will be used as the initial state value. This is called lazy initialization. In this case, reacthas full control over the evaluation of the expression, 
+// and it will only evaluate it once on the first render, and not on subsequent renders.
 const [data, setData] = useState(
   () => JSON.parse(localStorage.getItem("savedData") || "[]")
 );

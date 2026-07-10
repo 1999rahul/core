@@ -12,9 +12,15 @@ class Counter extends Component {
     this.state = {
       count: 0,
     };
-    this.increment = this.increment.bind(this); // must bind manually
+    // The following was a reason why we switched to function based components, so that we do not have to manually bind the callbacks.
+    this.increment = this.increment.bind(this); // must bind manually because this will get lost if passed as callback
   }
 
+  // this.increment and increment method are two different functions
+  // this.increment function this is fixed and cannot be canged and can be safely passed as callback to child components
+  // while increment method this is dynamic and can be changed based on how it is called, so it cannot be safely passed as callback to child components
+
+  // the following method will be created in the proto of the object 
   increment() {
     this.setState({ count: this.state.count + 1 });
   }
