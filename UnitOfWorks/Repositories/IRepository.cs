@@ -1,0 +1,21 @@
+﻿namespace UnitOfWorks.Repositories
+{
+    public interface IRepository<T> where T: class
+    {
+        Task<T> GetByIdAsync(int id);
+
+        Task<IEnumerable<T>> GetAllAsync();
+
+        Task<int> AddAsync(T entity);
+
+        Task<int> UpdateAsync(T entity);
+
+        Task<int> DeleteAsync(int id);
+
+        // Implement the followinf later
+
+        // Task<IEnumerable<T>> ExecuteStoredProcedureAsync(string procedureName, object? parameters = null);
+
+        // Task<int> ExecuteStoredProcedureNonQueryAsync(string procedureName, object? parameters = null);
+    }
+}
