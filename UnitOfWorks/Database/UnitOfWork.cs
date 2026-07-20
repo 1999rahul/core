@@ -30,7 +30,7 @@ namespace UnitOfWorks.Database
             connection.Open();
         }
 
-        public IProductRepository Products => productRepository ?? new ProductRepository(connection, transaction, TableNameHelper.GetTableName<Product>());
+        public IProductRepository Products => productRepository ??= new ProductRepository(connection, transaction, TableNameHelper.GetTableName<Product>());
 
 
         public IRepository<T> Repository<T>() where T : class
