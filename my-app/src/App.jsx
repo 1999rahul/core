@@ -1,7 +1,10 @@
 import UserDemo from "./Routing/Questions/UserProfile/User";
+import ErrorHandlerComponent from "./ErrorHandling/ErrorHandlerComponent";
 
 function App() {
-  return <UserDemo />
+  return <ErrorHandlerComponent>
+    <UserDemo />
+  </ErrorHandlerComponent>
 
 }
 
