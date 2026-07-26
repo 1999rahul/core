@@ -22,7 +22,6 @@
 //   - No prop drilling (no passing props through intermediate components)
 //   - Subscription model — only consumers re-render, not all children
 
-
 // ============================================================
 // SECTION 2 — WHY TWO CONTEXTS (STATE + DISPATCH)?
 // ============================================================
@@ -299,7 +298,6 @@ function AddTodo() {
     </div>
   );
 }
-
 
 // ----------------------------------------------------------
 // 5c. Component that ONLY DISPATCHES (filter actions)

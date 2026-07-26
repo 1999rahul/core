@@ -192,7 +192,7 @@ function CounterBad() {
   const [count, setCount] = useState(0);
   const [other, setOther] = useState(0);
 
-  // ❌ New function reference created on every render.
+  //    New function reference created on every render.
   //    Even when `other` changes (nothing to do with increment),
   //    ButtonBad re-renders because it sees a "new" onClick prop.
   const increment = () => setCount(c => c + 1);
